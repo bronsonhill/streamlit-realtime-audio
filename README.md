@@ -1,6 +1,6 @@
-# Streamlit Real-time Audio Component
+# Streamlit Real-time Audio
 
-A Streamlit custom component that enables real-time voice conversations with OpenAI's GPT using WebRTC for low-latency audio streaming.
+A Streamlit custom component for real-time voice conversations with OpenAI's GPT using WebRTC for low-latency audio streaming.
 
 ## Features
 
@@ -13,35 +13,15 @@ A Streamlit custom component that enables real-time voice conversations with Ope
 
 ## Installation
 
-### Prerequisites
+```bash
+pip install streamlit-realtime-audio
+```
 
-- Python 3.9+
-- Node.js and npm (for development)
-- OpenAI API key
-
-### From Source
-
-1. Clone or download this component
-2. Install Python dependencies:
-   ```bash
-   cd realtime_audio
-   pip install -e .
-   ```
-
-3. Install and build frontend dependencies:
-   ```bash
-   cd frontend
-   npm install
-   npm run build
-   ```
-
-## Usage
-
-### Basic Example
+## Quick Start
 
 ```python
 import streamlit as st
-from realtime_audio import realtime_audio_conversation
+from st_realtime_audio import realtime_audio_conversation
 
 st.title("AI Voice Assistant")
 
@@ -53,8 +33,7 @@ if api_key:
     result = realtime_audio_conversation(
         api_key=api_key,
         instructions="You are a helpful AI assistant. Keep responses concise.",
-        voice="alloy",
-        temperature=0.8
+        voice="alloy"
     )
     
     # Display conversation status
@@ -72,11 +51,21 @@ if api_key:
             st.chat_message("assistant").write(message['content'])
 ```
 
+## Usage
+
+### Basic Parameters
+
+- **`api_key`** (str, required): OpenAI API key for authentication
+- **`voice`** (str, default="alloy"): Voice for TTS. Options: "alloy", "echo", "fable", "onyx", "nova", "shimmer"
+- **`instructions`** (str): System instructions for the AI
+- **`temperature`** (float, default=0.8): AI response randomness (0.0-2.0)
+- **`auto_start`** (bool, default=False): Whether to automatically start the conversation
+
 ### Advanced Example
 
 ```python
 import streamlit as st
-from realtime_audio import realtime_audio_conversation
+from st_realtime_audio import realtime_audio_conversation
 
 st.set_page_config(page_title="Advanced AI Assistant", layout="wide")
 
@@ -121,26 +110,9 @@ with col1:
             st.metric("Recording", recording)
 ```
 
-## API Reference
+## Return Value
 
-### `realtime_audio_conversation()`
-
-Creates a real-time audio conversation component.
-
-#### Parameters
-
-- **`api_key`** (str): OpenAI API key for authentication
-- **`voice`** (str, default="alloy"): Voice for TTS. Options: "alloy", "echo", "fable", "onyx", "nova", "shimmer"
-- **`instructions`** (str, default="You are a helpful AI assistant..."): System instructions for the AI
-- **`prompt`** (str, default=""): Initial prompt to start the conversation
-- **`auto_start`** (bool, default=False): Whether to automatically start the conversation
-- **`temperature`** (float, default=0.8): AI response randomness (0.0-2.0)
-- **`turn_detection_threshold`** (float, default=0.5): Voice activity detection sensitivity (0.0-1.0)
-- **`key`** (str, optional): Unique component key
-
-#### Returns
-
-Dictionary with the following structure:
+The component returns a dictionary with conversation state:
 
 ```python
 {
@@ -162,58 +134,19 @@ Dictionary with the following structure:
 }
 ```
 
-## Development
+## Requirements
 
-### Setting up Development Environment
+- Python 3.9+
+- Streamlit >= 1.28.0
+- OpenAI API key
+- HTTPS connection (required for WebRTC)
+- Microphone access
 
-1. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Browser Support
 
-2. Install development dependencies:
-   ```bash
-   pip install streamlit
-   pip install -e .
-   ```
-
-3. Set up frontend development:
-   ```bash
-   cd frontend
-   npm install
-   npm run start  # Starts development server on port 3001
-   ```
-
-4. Run the example:
-   ```bash
-   streamlit run example.py
-   ```
-
-### Project Structure
-
-```
-realtime_audio/
-├── __init__.py              # Python API
-├── example.py               # Usage example
-├── setup.py                 # Package setup
-├── README.md               # Documentation
-└── frontend/
-    ├── package.json
-    ├── tsconfig.json
-    ├── vite.config.ts
-    └── src/
-        ├── index.tsx        # Entry point
-        ├── RealtimeAudio.tsx # Main component
-        ├── types/           # TypeScript definitions
-        └── utils/           # Utility functions
-```
-
-## Browser Requirements
-
-- **HTTPS required**: WebRTC requires a secure connection
-- **Microphone access**: Component will request microphone permissions
-- **Supported browsers**: Chrome, Firefox, Safari, Edge (latest versions)
+- Chrome, Firefox, Safari, Edge (latest versions)
+- HTTPS required for WebRTC functionality
+- Microphone permissions required
 
 ## Troubleshooting
 
@@ -234,21 +167,10 @@ realtime_audio/
 - Try different browsers
 - Verify speakers/headphones are working
 
-### Debug Mode
+## Development
 
-Enable debug logging by opening browser developer tools (F12) and checking the console for detailed connection information.
+For development setup and contributing, see the [GitHub repository](https://github.com/bronsonhill/streamlit-realtime-audio).
 
 ## License
 
 MIT License - see LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Support
-
-For issues and questions:
-1. Check the troubleshooting section
-2. Review browser console for errors
-3. Create an issue with detailed error information
