@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_realtime_audio import realtime_audio_conversation
+from st_realtime_audio import realtime_audio_conversation
 
 # Set page configuration
 st.set_page_config(
