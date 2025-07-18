@@ -1,0 +1,4 @@
+include st_realtime_audio/frontend/build/*
+recursive-include st_realtime_audio/frontend/build *
+include README.md
+include LICENSE 

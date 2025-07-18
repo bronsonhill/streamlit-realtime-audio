@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="streamlit_realtime_audio",
-    version="0.0.1",
+    version="0.0.2",
     author="Bronson Hill",
     author_email="bronson.hill@yahoo.com.au",
     description="Streamlit component for real-time audio conversation with OpenAI using WebRTC",
@@ -14,6 +14,9 @@ setuptools.setup(
     url="https://github.com/bronsonhill/streamlit-realtime-audio",
     packages=setuptools.find_packages(),
     include_package_data=True,
+    package_data={
+        'st_realtime_audio': ['frontend/build/*'],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

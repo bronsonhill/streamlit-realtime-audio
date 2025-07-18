@@ -20,9 +20,8 @@ else:
     # When we're distributing a production version of the component, we'll
     # replace the `url` param with `path`, and point it to the component's
     # build directory:
-    parent_dir = os.path.dirname(os.path.abspath(__file__))
-    # Go up one level to the realtime_audio directory, then into frontend/build
-    build_dir = os.path.join(os.path.dirname(parent_dir), "frontend/build")
+    # When installed as a package, the frontend build files should be in the package directory
+    build_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "build")
     _component_func = components.declare_component("realtime_audio", path=build_dir)
 
 
