@@ -1,0 +1,44 @@
+{
+  "name": "streamlit-realtime-audio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Streamlit component for real-time audio conversation with OpenAI using WebRTC",
+  "scripts": {
+    "start": "vite --port 3001",
+    "build": "vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "@types/uuid": "^9.0.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "streamlit-component-lib": "^2.0.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  },
+  "keywords": [
+    "streamlit",
+    "component",
+    "webrtc",
+    "openai",
+    "realtime",
+    "audio",
+    "conversation",
+    "speech"
+  ],
+  "author": "AI Assistant",
+  "license": "MIT"
+}
