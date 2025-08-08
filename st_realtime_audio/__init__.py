@@ -112,7 +112,7 @@ def realtime_audio_conversation(
             "is_paused": False
         }
     
-    valid_voices = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+    valid_voices = ["alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse"]
     if voice not in valid_voices:
         return {
             "transcript": [],
