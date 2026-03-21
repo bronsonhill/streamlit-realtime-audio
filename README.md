@@ -56,7 +56,7 @@ if api_key:
 ### Basic Parameters
 
 - **`api_key`** (str, required): OpenAI API key for authentication
-- **`voice`** (str, default="alloy"): Voice for TTS. Options: "alloy", "echo", "fable", "onyx", "nova", "shimmer"
+- **`voice`** (str, default="alloy"): Voice for TTS. Options: "alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"
 - **`instructions`** (str): System instructions for the AI
 - **`temperature`** (float, default=0.8): AI response randomness (0.0-2.0)
 - **`auto_start`** (bool, default=False): Whether to automatically start the conversation
@@ -74,7 +74,7 @@ col1, col2 = st.columns([3, 1])
 with col2:
     st.header("Settings")
     api_key = st.text_input("API Key", type="password")
-    voice = st.selectbox("Voice", ["alloy", "echo", "fable", "onyx", "nova", "shimmer"])
+    voice = st.selectbox("Voice", ["alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"])
     temperature = st.slider("Temperature", 0.0, 2.0, 0.8)
     instructions = st.text_area(
         "Instructions", 
@@ -169,7 +169,27 @@ The component returns a dictionary with conversation state:
 
 ## Development
 
-For development setup and contributing, see the [GitHub repository](https://github.com/bronsonhill/streamlit-realtime-audio).
+To test changes locally instead of using the published PyPI version, clone the repo, set up a virtual environment, and use the rebuild script:
+
+```bash
+git clone https://github.com/bronsonhill/streamlit-realtime-audio.git
+cd streamlit-realtime-audio
+python3 -m venv venv
+source venv/bin/activate
+npm install --prefix st_realtime_audio/frontend
+```
+
+After making changes to the Python or frontend code, run:
+
+```bash
+./rebuild.sh
+```
+
+This rebuilds the frontend and reinstalls the package locally. Then run the example app with:
+
+```bash
+streamlit run st_realtime_audio/example.py
+```
 
 ## License
 
