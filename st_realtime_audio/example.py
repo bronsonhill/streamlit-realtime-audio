@@ -25,7 +25,7 @@ with st.sidebar:
     # Voice selection
     voice = st.selectbox(
         "Voice",
-        options=["alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse"],
+        options=["alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"],
         index=0,
         help="Choose the voice for the AI assistant"
     )
