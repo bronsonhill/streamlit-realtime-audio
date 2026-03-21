@@ -52,8 +52,9 @@ def realtime_audio_conversation(
         with OpenAI's Realtime API.
     
     voice: str, default "alloy"
-        Voice to use for text-to-speech. Options: "alloy", "echo", "fable", 
-        "onyx", "nova", "shimmer"
+        Voice to use for text-to-speech. Known options: "alloy", "ash", "ballad",
+        "coral", "echo", "sage", "shimmer", "verse". Unknown voices are passed
+        through to the API, which will validate them.
     
     instructions: str, default "You are a helpful AI assistant..."
         System instructions that define the AI's personality and behavior.
@@ -112,17 +113,18 @@ def realtime_audio_conversation(
             "is_paused": False
         }
     
-    valid_voices = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
-    if voice not in valid_voices:
-        return {
-            "transcript": [],
-            "status": "error", 
-            "error": f"Invalid voice '{voice}'. Must be one of: {', '.join(valid_voices)}",
-            "session_id": None,
-            "connection_state": "new",
-            "is_recording": False,
-            "is_paused": False
-        }
+    # Known voices as of OpenAI Realtime API (March 2025).
+    # Unknown voices are passed through — the API will validate them,
+    # so this list doesn't need to be exhaustive or block future additions.
+    KNOWN_VOICES = ["alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse"]
+    if voice not in KNOWN_VOICES:
+        import warnings
+        warnings.warn(
+            f"Voice '{voice}' is not in the known voice list {KNOWN_VOICES}. "
+            "It will be sent to the API, which will return an error if it is invalid.",
+            UserWarning,
+            stacklevel=2,
+        )
     
     if not (0.0 <= temperature <= 2.0):
         return {
