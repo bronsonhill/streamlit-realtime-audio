@@ -169,98 +169,26 @@ The component returns a dictionary with conversation state:
 
 ## Development
 
-To work on the component locally instead of using the published PyPI version:
-
-### Prerequisites
-
-- Python 3.9+
-- Node.js 18+
-- npm
-
-### Setup
-
-1. Clone the repository:
+To test changes locally instead of using the published PyPI version, clone the repo, set up a virtual environment, and use the rebuild script:
 
 ```bash
 git clone https://github.com/bronsonhill/streamlit-realtime-audio.git
 cd streamlit-realtime-audio
-```
-
-2. Create and activate a virtual environment:
-
-```bash
 python3 -m venv venv
-source venv/bin/activate  # macOS/Linux
-# venv\Scripts\activate   # Windows
+source venv/bin/activate
+npm install --prefix st_realtime_audio/frontend
 ```
 
-3. Install the package in editable mode (so local changes are picked up immediately):
-
-```bash
-pip install -e .
-```
-
-### Quick Rebuild
-
-After making changes to the frontend or Python code, run the rebuild script to recompile and reinstall in one step:
+After making changes to the Python or frontend code, run:
 
 ```bash
 ./rebuild.sh
 ```
 
-### Frontend Development
-
-If you're making changes to the frontend (React/TypeScript), you'll need to rebuild it:
-
-1. Install frontend dependencies:
+This rebuilds the frontend and reinstalls the package locally. Then run the example app with:
 
 ```bash
-cd st_realtime_audio/frontend
-npm install
-```
-
-2. Rebuild the frontend after making changes:
-
-```bash
-npm run build
-```
-
-The built files go to `st_realtime_audio/frontend/build/` and are served by Streamlit automatically.
-
-3. For live frontend development with hot-reload, run the dev server instead:
-
-```bash
-npm run dev
-```
-
-Then set `_RELEASE = False` in `st_realtime_audio/__init__.py` so the component loads from the dev server (`localhost:3001`) instead of the static build.
-
-### Running the Example
-
-```bash
-cd <project-root>
-source venv/bin/activate
 streamlit run st_realtime_audio/example.py
-```
-
-### Project Structure
-
-```
-streamlit-realtime-audio/
-├── st_realtime_audio/
-│   ├── __init__.py              # Python component API
-│   ├── example.py               # Example Streamlit app
-│   └── frontend/
-│       ├── src/                  # React/TypeScript source
-│       │   ├── index.tsx         # Entry point
-│       │   ├── RealtimeAudio.tsx # Main component
-│       │   ├── types/            # TypeScript types
-│       │   └── utils/            # WebRTC & OpenAI helpers
-│       ├── build/                # Production build (committed)
-│       ├── vite.config.ts        # Vite build config
-│       └── package.json
-├── setup.py
-└── README.md
 ```
 
 ## License
