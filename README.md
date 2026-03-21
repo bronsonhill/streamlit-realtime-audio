@@ -200,6 +200,14 @@ source venv/bin/activate  # macOS/Linux
 pip install -e .
 ```
 
+### Quick Rebuild
+
+After making changes to the frontend or Python code, run the rebuild script to recompile and reinstall in one step:
+
+```bash
+./rebuild.sh
+```
+
 ### Frontend Development
 
 If you're making changes to the frontend (React/TypeScript), you'll need to rebuild it:
