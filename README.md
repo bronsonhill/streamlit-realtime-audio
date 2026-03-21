@@ -56,7 +56,7 @@ if api_key:
 ### Basic Parameters
 
 - **`api_key`** (str, required): OpenAI API key for authentication
-- **`voice`** (str, default="alloy"): Voice for TTS. Options: "alloy", "echo", "fable", "onyx", "nova", "shimmer"
+- **`voice`** (str, default="alloy"): Voice for TTS. Options: "alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"
 - **`instructions`** (str): System instructions for the AI
 - **`temperature`** (float, default=0.8): AI response randomness (0.0-2.0)
 - **`auto_start`** (bool, default=False): Whether to automatically start the conversation
@@ -74,7 +74,7 @@ col1, col2 = st.columns([3, 1])
 with col2:
     st.header("Settings")
     api_key = st.text_input("API Key", type="password")
-    voice = st.selectbox("Voice", ["alloy", "echo", "fable", "onyx", "nova", "shimmer"])
+    voice = st.selectbox("Voice", ["alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"])
     temperature = st.slider("Temperature", 0.0, 2.0, 0.8)
     instructions = st.text_area(
         "Instructions", 
@@ -169,7 +169,91 @@ The component returns a dictionary with conversation state:
 
 ## Development
 
-For development setup and contributing, see the [GitHub repository](https://github.com/bronsonhill/streamlit-realtime-audio).
+To work on the component locally instead of using the published PyPI version:
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js 18+
+- npm
+
+### Setup
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/bronsonhill/streamlit-realtime-audio.git
+cd streamlit-realtime-audio
+```
+
+2. Create and activate a virtual environment:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
+```
+
+3. Install the package in editable mode (so local changes are picked up immediately):
+
+```bash
+pip install -e .
+```
+
+### Frontend Development
+
+If you're making changes to the frontend (React/TypeScript), you'll need to rebuild it:
+
+1. Install frontend dependencies:
+
+```bash
+cd st_realtime_audio/frontend
+npm install
+```
+
+2. Rebuild the frontend after making changes:
+
+```bash
+npm run build
+```
+
+The built files go to `st_realtime_audio/frontend/build/` and are served by Streamlit automatically.
+
+3. For live frontend development with hot-reload, run the dev server instead:
+
+```bash
+npm run dev
+```
+
+Then set `_RELEASE = False` in `st_realtime_audio/__init__.py` so the component loads from the dev server (`localhost:3001`) instead of the static build.
+
+### Running the Example
+
+```bash
+cd <project-root>
+source venv/bin/activate
+streamlit run st_realtime_audio/example.py
+```
+
+### Project Structure
+
+```
+streamlit-realtime-audio/
+├── st_realtime_audio/
+│   ├── __init__.py              # Python component API
+│   ├── example.py               # Example Streamlit app
+│   └── frontend/
+│       ├── src/                  # React/TypeScript source
+│       │   ├── index.tsx         # Entry point
+│       │   ├── RealtimeAudio.tsx # Main component
+│       │   ├── types/            # TypeScript types
+│       │   └── utils/            # WebRTC & OpenAI helpers
+│       ├── build/                # Production build (committed)
+│       ├── vite.config.ts        # Vite build config
+│       └── package.json
+├── setup.py
+└── README.md
+```
 
 ## License
 
