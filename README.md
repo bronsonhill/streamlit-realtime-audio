@@ -32,6 +32,7 @@ if api_key:
     # Create the real-time audio conversation
     result = realtime_audio_conversation(
         api_key=api_key,
+        model="gpt-4o-realtime-preview-2024-12-17",
         instructions="You are a helpful AI assistant. Keep responses concise.",
         voice="alloy"
     )
@@ -56,6 +57,7 @@ if api_key:
 ### Basic Parameters
 
 - **`api_key`** (str, required): OpenAI API key for authentication
+- **`model`** (str, default="gpt-4o-realtime-preview-2024-12-17"): OpenAI Realtime model used for the session
 - **`voice`** (str, default="alloy"): Voice for TTS. Options: "alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"
 - **`instructions`** (str): System instructions for the AI
 - **`temperature`** (float, default=0.8): AI response randomness (0.0-2.0)
@@ -74,6 +76,7 @@ col1, col2 = st.columns([3, 1])
 with col2:
     st.header("Settings")
     api_key = st.text_input("API Key", type="password")
+    model = st.text_input("Model", value="gpt-4o-realtime-preview-2024-12-17")
     voice = st.selectbox("Voice", ["alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"])
     temperature = st.slider("Temperature", 0.0, 2.0, 0.8)
     instructions = st.text_area(
@@ -88,6 +91,7 @@ with col1:
     if api_key:
         conversation = realtime_audio_conversation(
             api_key=api_key,
+            model=model,
             voice=voice,
             instructions=instructions,
             temperature=temperature,
@@ -191,6 +195,13 @@ This rebuilds the frontend and reinstalls the package locally. Then run the exam
 streamlit run st_realtime_audio/example.py
 ```
 
-## License
+## Fork Updates
 
-MIT License - see LICENSE file for details.
+This fork adds a small set of practical changes while keeping the original API style:
+
+- Added `model` as an explicit input argument to `realtime_audio_conversation(...)`, wired from Python to the frontend session setup.
+- Updated the package default model to `gpt-realtime-2.1`.
+- Updated the data channel open timeout from 5 seconds to 30 seconds to reduce connection timeouts.
+- Updated the local example app to enforce importing the local package copy (not an installed PyPI/venv copy) for safer fork development and testing.
+t_realtime_audio/example.py
+```
