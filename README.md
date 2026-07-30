@@ -202,6 +202,5 @@ This fork adds a small set of practical changes while keeping the original API s
 - Added `model` as an explicit input argument to `realtime_audio_conversation(...)`, wired from Python to the frontend session setup.
 - Updated the package default model to `gpt-realtime-2.1`.
 - Updated the data channel open timeout from 5 seconds to 30 seconds to reduce connection timeouts.
-- Updated the local example app to enforce importing the local package copy (not an installed PyPI/venv copy) for safer fork development and testing.
 t_realtime_audio/example.py
 ```

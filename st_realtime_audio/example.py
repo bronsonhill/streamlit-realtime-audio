@@ -1,24 +1,5 @@
-import sys
-from pathlib import Path
-
 import streamlit as st
-
-repo_root = Path(__file__).resolve().parents[1]
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
-
-import st_realtime_audio
-
-expected_package_dir = (repo_root / "st_realtime_audio").resolve()
-imported_package_file = Path(st_realtime_audio.__file__).resolve()
-
-if imported_package_file.parent != expected_package_dir:
-    raise ImportError(
-        "example.py must import the local st_realtime_audio package. "
-        f"Imported {imported_package_file} instead of {expected_package_dir / '__init__.py'}."
-    )
-
-realtime_audio_conversation = st_realtime_audio.realtime_audio_conversation
+from st_realtime_audio import realtime_audio_conversation
 
 # Set page configuration
 st.set_page_config(
