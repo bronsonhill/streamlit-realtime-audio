@@ -1,5 +1,24 @@
+import sys
+from pathlib import Path
+
 import streamlit as st
-from st_realtime_audio import realtime_audio_conversation
+
+repo_root = Path(__file__).resolve().parents[1]
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
+import st_realtime_audio
+
+expected_package_dir = (repo_root / "st_realtime_audio").resolve()
+imported_package_file = Path(st_realtime_audio.__file__).resolve()
+
+if imported_package_file.parent != expected_package_dir:
+    raise ImportError(
+        "example.py must import the local st_realtime_audio package. "
+        f"Imported {imported_package_file} instead of {expected_package_dir / '__init__.py'}."
+    )
+
+realtime_audio_conversation = st_realtime_audio.realtime_audio_conversation
 
 # Set page configuration
 st.set_page_config(
@@ -23,6 +42,12 @@ with st.sidebar:
     )
     
     # Voice selection
+    model = st.text_input(
+        "Model",
+        value="gpt-realtime-2.1",
+        help="OpenAI Realtime model to use for the conversation"
+    )
+
     voice = st.selectbox(
         "Voice",
         options=["alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"],
@@ -192,6 +217,7 @@ with col1:
         # Create the real-time audio conversation component
         conversation_result = realtime_audio_conversation(
             api_key=api_key,
+            model=model,
             voice=voice,
             instructions=instructions,
             auto_start=auto_start,

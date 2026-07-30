@@ -23,6 +23,7 @@ import {
 } from './utils/webrtc';
 import {
   createSessionUpdateEvent,
+  createContextEvent,
   createGreetingEvent,
   createResponseCancelEvent,
   sendEvent,
@@ -35,6 +36,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
   const {
     prompt = '',
     apiKey = '',
+    model = 'gpt-realtime-2.1',
     voice = 'alloy',
     instructions = 'You are a helpful AI assistant.',
     autoStart = false,
@@ -180,6 +182,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
       console.log('Establishing connection with OpenAI...');
       const config: OpenAIRealtimeConfig = {
         apiKey,
+        model,
         voice: voice as any,
         instructions,
         temperature,
@@ -202,9 +205,12 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
       const sessionUpdate = createSessionUpdateEvent(config);
       sendEvent(dataChannel, sessionUpdate);
 
-      // Send initial greeting if prompt provided
+      // Send initial context and greeting if prompt provided
       if (prompt) {
-        const greeting = createGreetingEvent(prompt);
+        const contextEvent = createContextEvent(prompt);
+        sendEvent(dataChannel, contextEvent);
+
+        const greeting = createGreetingEvent();
         sendEvent(dataChannel, greeting);
       }
 
@@ -230,6 +236,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
     }
   }, [
     apiKey, 
+    model,
     voice, 
     instructions, 
     temperature, 

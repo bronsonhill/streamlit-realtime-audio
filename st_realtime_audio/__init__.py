@@ -28,6 +28,7 @@ else:
 def realtime_audio_conversation(
     prompt: str = "",
     api_key: str = "",
+    model: str = "gpt-realtime-2.1",
     voice: str = "alloy",
     instructions: str = "You are a helpful AI assistant. Respond naturally and conversationally.",
     auto_start: bool = False,
@@ -50,6 +51,9 @@ def realtime_audio_conversation(
     api_key: str
         OpenAI API key for authentication. Required to establish connection
         with OpenAI's Realtime API.
+
+    model: str, default "gpt-realtime-2.1"
+        OpenAI Realtime model to use when establishing the conversation.
     
     voice: str, default "alloy"
         Voice to use for text-to-speech. Known options: "alloy", "ash", "ballad",
@@ -112,6 +116,17 @@ def realtime_audio_conversation(
             "is_recording": False,
             "is_paused": False
         }
+
+    if not model:
+        return {
+            "transcript": [],
+            "status": "error",
+            "error": "OpenAI model is required",
+            "session_id": None,
+            "connection_state": "new",
+            "is_recording": False,
+            "is_paused": False
+        }
     
     # Known voices as of OpenAI Realtime API (March 2025).
     # Unknown voices are passed through — the API will validate them,
@@ -154,6 +169,7 @@ def realtime_audio_conversation(
     component_value = _component_func(
         prompt=prompt,
         apiKey=api_key,  # Convert to camelCase for frontend
+        model=model,
         voice=voice,
         instructions=instructions,
         autoStart=auto_start,  # Convert to camelCase for frontend
@@ -206,6 +222,7 @@ def test_conversation(api_key: str, instructions: str = None) -> Dict[str, Any]:
     
     return realtime_audio_conversation(
         api_key=api_key,
+        model="gpt-realtime-2.1",
         instructions=instructions if instructions is not None else default_instructions,
         auto_start=False,
         voice="alloy"

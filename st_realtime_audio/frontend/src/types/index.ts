@@ -1,6 +1,7 @@
 // OpenAI Realtime API Types
 export interface OpenAIRealtimeConfig {
   apiKey: string;
+  model: string;
   voice: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
   instructions: string;
   temperature: number;
@@ -30,6 +31,7 @@ export interface RealtimeAudioState {
 export interface RealtimeAudioProps {
   prompt: string;
   apiKey: string;
+  model: string;
   voice: string;
   instructions: string;
   autoStart: boolean;
@@ -41,20 +43,28 @@ export interface RealtimeAudioProps {
 
 // OpenAI Event Types
 export interface OpenAISessionConfig {
+  type: 'realtime';
+  audio: {
+    input: {
+      transcription: {
+        model: string;
+      };
+      turn_detection: {
+        type: 'server_vad';
+        threshold: number;
+        prefix_padding_ms: number;
+        silence_duration_ms: number;
+        create_response: boolean;
+        interrupt_response: boolean;
+      };
+    };
+    output: {
+      voice: string;
+    };
+  };
   instructions: string;
-  voice: string;
-  input_audio_transcription: {
-    model: string;
-  };
-  turn_detection: {
-    type: 'server_vad';
-    threshold: number;
-    prefix_padding_ms: number;
-    silence_duration_ms: number;
-    create_response: boolean;
-    interrupt_response: boolean;
-  };
   temperature: number;
+  output_modalities: Array<'audio' | 'text'>;
 }
 
 export interface OpenAIEvent {
@@ -70,8 +80,20 @@ export interface SessionUpdateEvent extends OpenAIEvent {
 export interface ResponseCreateEvent extends OpenAIEvent {
   type: 'response.create';
   response: {
-    modalities: string[];
+    output_modalities: string[];
     instructions?: string;
+  };
+}
+
+export interface ConversationItemCreateEvent extends OpenAIEvent {
+  type: 'conversation.item.create';
+  item: {
+    type: 'message';
+    role: 'system' | 'user';
+    content: Array<{
+      type: 'input_text';
+      text: string;
+    }>;
   };
 }
 
