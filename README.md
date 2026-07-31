@@ -62,6 +62,7 @@ if api_key:
 - **`instructions`** (str): System instructions for the AI
 - **`temperature`** (float, default=0.8): AI response randomness (0.0-2.0)
 - **`auto_start`** (bool, default=False): Whether to automatically start the conversation
+- **`playback_paused`** (bool | None, default=None): Optional external control for AI voice playback (`True` pauses, `False` plays, `None` leaves control to the component UI)
 
 ### Advanced Example
 
@@ -134,7 +135,8 @@ The component returns a dictionary with conversation state:
     "session_id": "unique_session_id" | None,
     "connection_state": "new" | "connecting" | "connected" | "disconnected" | "failed" | "closed",
     "is_recording": bool,
-    "is_paused": bool
+    "is_paused": bool,
+    "is_voice_paused": bool
 }
 ```
 

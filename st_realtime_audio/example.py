@@ -1,3 +1,11 @@
+# Uncomment to run locally for development and debugging
+# import sys
+# import os
+# sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+# import st_realtime_audio
+# print(f"[st_realtime_audio] loaded from: {st_realtime_audio.__file__}")
+
 import streamlit as st
 from st_realtime_audio import realtime_audio_conversation
 
@@ -185,6 +193,20 @@ Guide student practitioners to ask insightful questions to cover the scope of an
             help="Automatically start the conversation when the page loads"
         )
 
+        control_playback_from_sidebar = st.checkbox(
+            "Control AI voice playback from sidebar",
+            value=False,
+            help="When enabled, sidebar playback state controls the component"
+        )
+
+        playback_paused = None
+        if control_playback_from_sidebar:
+            playback_paused = st.checkbox(
+                "Pause AI voice playback",
+                value=False,
+                help="Pause or resume the assistant's audio output without disconnecting"
+            )
+
 # Main content area
 col1, col2 = st.columns([2, 1])
 
@@ -204,6 +226,7 @@ with col1:
             auto_start=auto_start,
             temperature=temperature,
             turn_detection_threshold=turn_detection_threshold,
+            playback_paused=playback_paused,
             key="main_conversation"
         )
         
@@ -268,8 +291,11 @@ with col2:
             st.write(recording_status)
             
         with col_pause:
-            pause_status = "⏸️ Paused" if conversation_result.get("is_paused") else "▶️ Active"
+            pause_status = "⏸️ Mic Paused" if conversation_result.get("is_paused") else "🎙️ Mic Active"
             st.write(pause_status)
+
+        voice_status = "⏸️ Voice Paused" if conversation_result.get("is_voice_paused") else "▶️ Voice Playing"
+        st.write(voice_status)
     
     # Help section
     with st.expander("How to Use"):

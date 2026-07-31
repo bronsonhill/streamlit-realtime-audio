@@ -34,6 +34,7 @@ def realtime_audio_conversation(
     auto_start: bool = False,
     temperature: float = 0.8,
     turn_detection_threshold: float = 0.5,
+    playback_paused: Optional[bool] = None,
     key: Optional[str] = None
 ) -> Dict[str, Any]:
     """
@@ -74,6 +75,12 @@ def realtime_audio_conversation(
     turn_detection_threshold: float, default 0.5
         Voice activity detection threshold. Range 0.0 to 1.0.
         Lower values are more sensitive to voice activity.
+
+    playback_paused: bool or None, default None
+        Optional external control for AI voice playback.
+        - True: pause remote voice playback.
+        - False: resume remote voice playback.
+        - None: component controls playback from its own UI.
         
     key: str or None
         An optional key that uniquely identifies this component. If this is
@@ -114,7 +121,8 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new",
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
         }
 
     if not model:
@@ -125,7 +133,8 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new",
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
         }
     
     # Known voices as of OpenAI Realtime API (March 2025).
@@ -149,7 +158,8 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new", 
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
         }
         
     if not (0.0 <= turn_detection_threshold <= 1.0):
@@ -160,7 +170,8 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new",
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
         }
 
     # Call through to our private component function. Arguments we pass here
@@ -175,6 +186,7 @@ def realtime_audio_conversation(
         autoStart=auto_start,  # Convert to camelCase for frontend
         temperature=temperature,
         turnDetectionThreshold=turn_detection_threshold,  # Convert to camelCase for frontend
+        playbackPaused=playback_paused,  # Convert to camelCase for frontend
         default={
             "transcript": [],
             "status": "idle",
@@ -182,7 +194,8 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new",
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
         }
     )
 
@@ -194,7 +207,8 @@ def realtime_audio_conversation(
         "session_id": None,
         "connection_state": "new",
         "is_recording": False,
-        "is_paused": False
+        "is_paused": False,
+        "is_voice_paused": False
     }
 
 

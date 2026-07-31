@@ -21,6 +21,7 @@ export interface RealtimeAudioState {
   status: 'idle' | 'connecting' | 'connected' | 'recording' | 'speaking' | 'error';
   isRecording: boolean;
   isPaused: boolean;
+  isVoicePaused: boolean;
   transcript: ConversationItem[];
   error: string | null;
   sessionId: string | null;
@@ -37,6 +38,7 @@ export interface RealtimeAudioProps {
   autoStart: boolean;
   temperature: number;
   turnDetectionThreshold: number;
+  playbackPaused?: boolean;
   showTranscript?: boolean;
   title?: string;
 }
