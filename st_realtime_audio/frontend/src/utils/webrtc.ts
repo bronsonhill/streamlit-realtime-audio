@@ -53,14 +53,42 @@ export async function establishOpenAIConnection(
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
 
-    // Send offer to OpenAI
-    const response = await fetch(`https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17`, {
+    const sessionConfig = {
+      type: 'realtime',
+      model: config.model,
+      instructions: config.instructions,
+      output_modalities: ['audio'],
+      audio: {
+        input: {
+          transcription: {
+            model: 'whisper-1'
+          },
+          turn_detection: {
+            type: 'server_vad',
+            threshold: config.turnDetectionThreshold,
+            prefix_padding_ms: 300,
+            silence_duration_ms: 200,
+            create_response: true,
+            interrupt_response: true
+          }
+        },
+        output: {
+          voice: config.voice
+        }
+      }
+    };
+
+    const formData = new FormData();
+    formData.set('sdp', offer.sdp || '');
+    formData.set('session', JSON.stringify(sessionConfig));
+
+    // Send offer to OpenAI using the GA WebRTC interface.
+    const response = await fetch('https://api.openai.com/v1/realtime/calls', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${config.apiKey}`,
-        'Content-Type': 'application/sdp'
+        'Authorization': `Bearer ${config.apiKey}`
       },
-      body: offer.sdp
+      body: formData
     });
 
     if (!response.ok) {
@@ -127,7 +155,7 @@ export function createDataChannel(peerConnection: RTCPeerConnection): RTCDataCha
  */
 export function waitForDataChannelOpen(
   dataChannel: RTCDataChannel,
-  timeout: number = 5000
+  timeout: number = 30000
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     if (dataChannel.readyState === 'open') {

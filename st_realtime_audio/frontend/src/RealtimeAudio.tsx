@@ -23,6 +23,7 @@ import {
 } from './utils/webrtc';
 import {
   createSessionUpdateEvent,
+  createContextEvent,
   createGreetingEvent,
   createResponseCancelEvent,
   sendEvent,
@@ -35,11 +36,13 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
   const {
     prompt = '',
     apiKey = '',
+    model = 'gpt-realtime-2.1',
     voice = 'alloy',
     instructions = 'You are a helpful AI assistant.',
     autoStart = false,
     temperature = 0.8,
     turnDetectionThreshold = 0.5,
+    playbackPaused,
     showTranscript = false,
     title = 'Real-time Audio Conversation'
   } = args as RealtimeAudioProps;
@@ -49,6 +52,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
     status: 'idle',
     isRecording: false,
     isPaused: false,
+    isVoicePaused: false,
     transcript: [],
     error: null,
     sessionId: null,
@@ -98,7 +102,8 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
         session_id: newState.sessionId || newState.session_id || prev.sessionId,
         connection_state: newState.connectionState || prev.connectionState,
         is_recording: newState.isRecording ?? prev.isRecording,
-        is_paused: newState.isPaused ?? prev.isPaused
+        is_paused: newState.isPaused ?? prev.isPaused,
+        is_voice_paused: newState.isVoicePaused ?? prev.isVoicePaused
       });
       return newState;
     });
@@ -140,6 +145,28 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
     }
   }, []);
 
+  const pauseVoicePlayback = useCallback(() => {
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.pause();
+    }
+
+    setState(prev => ({ ...prev, isVoicePaused: true }));
+    updateStreamlitValue(prev => ({ ...prev, is_voice_paused: true }));
+  }, [updateStreamlitValue]);
+
+  const resumeVoicePlayback = useCallback(async () => {
+    if (remoteAudioRef.current) {
+      try {
+        await remoteAudioRef.current.play();
+      } catch (error) {
+        console.warn('Failed to resume voice playback:', error);
+      }
+    }
+
+    setState(prev => ({ ...prev, isVoicePaused: false }));
+    updateStreamlitValue(prev => ({ ...prev, is_voice_paused: false }));
+  }, [updateStreamlitValue]);
+
   // Start conversation
   const startConversation = useCallback(async () => {
     if (!apiKey) {
@@ -180,6 +207,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
       console.log('Establishing connection with OpenAI...');
       const config: OpenAIRealtimeConfig = {
         apiKey,
+        model,
         voice: voice as any,
         instructions,
         temperature,
@@ -202,9 +230,12 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
       const sessionUpdate = createSessionUpdateEvent(config);
       sendEvent(dataChannel, sessionUpdate);
 
-      // Send initial greeting if prompt provided
+      // Send initial context and greeting if prompt provided
       if (prompt) {
-        const greeting = createGreetingEvent(prompt);
+        const contextEvent = createContextEvent(prompt);
+        sendEvent(dataChannel, contextEvent);
+
+        const greeting = createGreetingEvent();
         sendEvent(dataChannel, greeting);
       }
 
@@ -230,6 +261,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
     }
   }, [
     apiKey, 
+    model,
     voice, 
     instructions, 
     temperature, 
@@ -264,6 +296,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
       status: 'idle', 
       isRecording: false, 
       isPaused: false,
+      isVoicePaused: false,
       connectionState: 'closed'
     }));
     setHasActiveResponse(false);
@@ -272,6 +305,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
       status: 'idle', 
       is_recording: false, 
       is_paused: false,
+      is_voice_paused: false,
       connection_state: 'closed'
     }));
   }, [updateStreamlitValue, hasActiveResponse, state.isPaused]);
@@ -343,6 +377,22 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
     }
   }, [autoStart, apiKey, state.status, startConversation]);
 
+  // Optional Python-side control: when playbackPaused is provided,
+  // treat it as the source of truth for remote voice playback.
+  useEffect(() => {
+    if (typeof playbackPaused !== 'boolean') {
+      return;
+    }
+
+    if (playbackPaused && !state.isVoicePaused) {
+      pauseVoicePlayback();
+    }
+
+    if (!playbackPaused && state.isVoicePaused) {
+      resumeVoicePlayback();
+    }
+  }, [playbackPaused, state.isVoicePaused, pauseVoicePlayback, resumeVoicePlayback]);
+
   // Render component
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
@@ -400,7 +450,7 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
                     fontWeight: '500'
                   }}
                 >
-                  Pause
+                  Pause Mic
                 </button>
               ) : (
                 <button
@@ -417,7 +467,43 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
                     fontWeight: '500'
                   }}
                 >
-                  Resume
+                  Resume Mic
+                </button>
+              )}
+
+              {!state.isVoicePaused ? (
+                <button
+                  onClick={pauseVoicePlayback}
+                  disabled={disabled}
+                  style={{
+                    padding: '12px 20px',
+                    backgroundColor: '#5B8DEF',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Pause Voice
+                </button>
+              ) : (
+                <button
+                  onClick={resumeVoicePlayback}
+                  disabled={disabled}
+                  style={{
+                    padding: '12px 20px',
+                    backgroundColor: '#1E9E66',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Play Voice
                 </button>
               )}
             </>
@@ -465,6 +551,13 @@ const RealtimeAudio: React.FC<ComponentProps> = ({ args, disabled }) => {
             color: state.isPaused ? '#FFA500' : '#666' 
           }}>
             {state.isPaused ? 'Yes' : 'No'}
+          </span>
+        </div>
+        <div>
+          Voice Playback: <span style={{ 
+            color: state.isVoicePaused ? '#5B8DEF' : '#666' 
+          }}>
+            {state.isVoicePaused ? 'Paused' : 'Playing'}
           </span>
         </div>
       </div>

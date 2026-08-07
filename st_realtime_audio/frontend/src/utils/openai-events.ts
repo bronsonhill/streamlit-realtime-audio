@@ -2,6 +2,7 @@ import type {
   OpenAIEvent, 
   SessionUpdateEvent, 
   ResponseCreateEvent, 
+  ConversationItemCreateEvent,
   OpenAIRealtimeConfig,
   ConversationItem 
 } from '../types';
@@ -14,20 +15,43 @@ export function createSessionUpdateEvent(config: OpenAIRealtimeConfig): SessionU
   return {
     type: 'session.update',
     session: {
+      type: 'realtime',
       instructions: config.instructions,
-      voice: config.voice,
-      input_audio_transcription: {
-        model: 'whisper-1'
+      audio: {
+        input: {
+          transcription: {
+            model: 'whisper-1'
+          },
+          turn_detection: {
+            type: 'server_vad',
+            threshold: config.turnDetectionThreshold,
+            prefix_padding_ms: 300,
+            silence_duration_ms: 200,
+            create_response: true,
+            interrupt_response: true
+          }
+        },
+        output: {
+          voice: config.voice
+        }
       },
-      turn_detection: {
-        type: 'server_vad',
-        threshold: config.turnDetectionThreshold,
-        prefix_padding_ms: 300,
-        silence_duration_ms: 200,
-        create_response: true, // Re-enable response creation
-        interrupt_response: true
-      },
-      temperature: config.temperature
+      output_modalities: ['audio']
+    }
+  };
+}
+
+export function createContextEvent(prompt: string): ConversationItemCreateEvent {
+  return {
+    type: 'conversation.item.create',
+    item: {
+      type: 'message',
+      role: 'system',
+      content: [
+        {
+          type: 'input_text',
+          text: prompt
+        }
+      ]
     }
   };
 }
@@ -39,7 +63,7 @@ export function createGreetingEvent(instructions?: string): ResponseCreateEvent 
   return {
     type: 'response.create',
     response: {
-      modalities: ['text', 'audio'],
+      output_modalities: ['audio'],
       instructions: instructions || 'Say a brief friendly greeting to start the conversation.'
     }
   };
@@ -186,9 +210,10 @@ export function handleTranscriptEvent(
       break;
     }
 
-    case 'response.audio_transcript.delta': {
+    case 'response.audio_transcript.delta':
+    case 'response.output_audio_transcript.delta': {
       // AI speech transcript streaming
-      const messageId = event.response_id || uuidv4();
+      const messageId = event.item_id || event.response_id || uuidv4();
       const existingIndex = transcript.findIndex(item => item.id === messageId);
       
       if (existingIndex >= 0) {
@@ -216,9 +241,10 @@ export function handleTranscriptEvent(
       break;
     }
 
-    case 'response.audio_transcript.done': {
+    case 'response.audio_transcript.done':
+    case 'response.output_audio_transcript.done': {
       // AI speech transcript completed
-      const messageId = event.response_id || uuidv4();
+      const messageId = event.item_id || event.response_id || uuidv4();
       const existingIndex = transcript.findIndex(item => item.id === messageId);
       
       if (existingIndex >= 0) {
@@ -268,7 +294,9 @@ export function getStatusFromEvent(event: OpenAIEvent): string | null {
       return 'connected';
     
     case 'response.audio_transcript.delta':
+    case 'response.output_audio_transcript.delta':
     case 'response.audio.delta':
+    case 'response.output_audio.delta':
       return 'speaking';
     
     case 'response.done':
@@ -372,9 +400,18 @@ export function createEventHandlers(
 
       // Track active response state
       const previousActiveState = hasActiveResponse;
-      if (event.type === 'response.audio_transcript.delta' || event.type === 'response.audio.delta') {
+      if (
+        event.type === 'response.audio_transcript.delta' ||
+        event.type === 'response.output_audio_transcript.delta' ||
+        event.type === 'response.audio.delta' ||
+        event.type === 'response.output_audio.delta'
+      ) {
         hasActiveResponse = true;
-      } else if (event.type === 'response.done' || event.type === 'response.audio_transcript.done') {
+      } else if (
+        event.type === 'response.done' ||
+        event.type === 'response.audio_transcript.done' ||
+        event.type === 'response.output_audio_transcript.done'
+      ) {
         hasActiveResponse = false;
       }
       

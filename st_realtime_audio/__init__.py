@@ -28,11 +28,13 @@ else:
 def realtime_audio_conversation(
     prompt: str = "",
     api_key: str = "",
+    model: str = "gpt-realtime-2.1",
     voice: str = "alloy",
     instructions: str = "You are a helpful AI assistant. Respond naturally and conversationally.",
     auto_start: bool = False,
     temperature: float = 0.8,
     turn_detection_threshold: float = 0.5,
+    playback_paused: Optional[bool] = None,
     key: Optional[str] = None
 ) -> Dict[str, Any]:
     """
@@ -50,6 +52,9 @@ def realtime_audio_conversation(
     api_key: str
         OpenAI API key for authentication. Required to establish connection
         with OpenAI's Realtime API.
+
+    model: str, default "gpt-realtime-2.1"
+        OpenAI Realtime model to use when establishing the conversation.
     
     voice: str, default "alloy"
         Voice to use for text-to-speech. Known options: "alloy", "ash", "ballad",
@@ -70,6 +75,12 @@ def realtime_audio_conversation(
     turn_detection_threshold: float, default 0.5
         Voice activity detection threshold. Range 0.0 to 1.0.
         Lower values are more sensitive to voice activity.
+
+    playback_paused: bool or None, default None
+        Optional external control for AI voice playback.
+        - True: pause remote voice playback.
+        - False: resume remote voice playback.
+        - None: component controls playback from its own UI.
         
     key: str or None
         An optional key that uniquely identifies this component. If this is
@@ -110,7 +121,20 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new",
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
+        }
+
+    if not model:
+        return {
+            "transcript": [],
+            "status": "error",
+            "error": "OpenAI model is required",
+            "session_id": None,
+            "connection_state": "new",
+            "is_recording": False,
+            "is_paused": False,
+            "is_voice_paused": False
         }
     
     # Known voices as of OpenAI Realtime API (March 2025).
@@ -134,7 +158,8 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new", 
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
         }
         
     if not (0.0 <= turn_detection_threshold <= 1.0):
@@ -145,7 +170,8 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new",
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
         }
 
     # Call through to our private component function. Arguments we pass here
@@ -154,11 +180,13 @@ def realtime_audio_conversation(
     component_value = _component_func(
         prompt=prompt,
         apiKey=api_key,  # Convert to camelCase for frontend
+        model=model,
         voice=voice,
         instructions=instructions,
         autoStart=auto_start,  # Convert to camelCase for frontend
         temperature=temperature,
         turnDetectionThreshold=turn_detection_threshold,  # Convert to camelCase for frontend
+        playbackPaused=playback_paused,  # Convert to camelCase for frontend
         default={
             "transcript": [],
             "status": "idle",
@@ -166,7 +194,8 @@ def realtime_audio_conversation(
             "session_id": None,
             "connection_state": "new",
             "is_recording": False,
-            "is_paused": False
+            "is_paused": False,
+            "is_voice_paused": False
         }
     )
 
@@ -178,7 +207,8 @@ def realtime_audio_conversation(
         "session_id": None,
         "connection_state": "new",
         "is_recording": False,
-        "is_paused": False
+        "is_paused": False,
+        "is_voice_paused": False
     }
 
 
@@ -206,6 +236,7 @@ def test_conversation(api_key: str, instructions: str = None) -> Dict[str, Any]:
     
     return realtime_audio_conversation(
         api_key=api_key,
+        model="gpt-realtime-2.1",
         instructions=instructions if instructions is not None else default_instructions,
         auto_start=False,
         voice="alloy"
